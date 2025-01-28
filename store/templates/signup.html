@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Customer Signup{% endblock title %}
+{% block content %}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-0 rounded">
+                <div class="card-body p-5">
+                    <h3 class="card-title text-center mb-4 text-primary">Create Your Account</h3>
+
+                    <!-- Signup form -->
+                    <form action="/signup/" method="POST">
+                        {% csrf_token %}
+
+                        <!-- Display messages -->
+                        {% if messages %}
+                            <div class="mb-4">
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <!-- Error display -->
+                        {% if error %}
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                {{ error }}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        {% endif %}
+
+                        <!-- Name input -->
+                        <div class="form-group">
+                            <label for="name" class="font-weight-bold">Full Name</label>
+                            <input type="text" name="name" id="name" value="{{ value.name }}" class="form-control form-control-lg" placeholder="Enter your full name">
+                        </div>
+
+                        <!-- Phone input -->
+                        <div class="form-group">
+                            <label for="mobile" class="font-weight-bold">Mobile Number</label>
+                            <input type="text" name="phone" id="mobile" value="{{ value.phone }}" class="form-control form-control-lg" placeholder="Enter your mobile number">
+                        </div>
+
+                        <!-- Submit button -->
+                        <div class="form-group pt-4">
+                            <button type="submit" class="btn btn-primary btn-block btn-lg">Sign Up</button>
+                        </div>
+
+                        <!-- Already have an account -->
+                        <div class="text-center mt-3">
+                            <p class="text-muted">Already have an account?
+                                <a href="/login" class="font-weight-bold text-primary">Login here</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

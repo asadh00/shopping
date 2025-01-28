@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center mb-4">My Cart</h2>
+
+    <div class="row">
+        {% for cart in cart %}
+        <div class="col-md-4 mb-3" id="row-{{ cart.product.id }}">
+            <div class="card shadow-sm border rounded">
+                <img src="{{ cart.product.image.url }}" class="card-img-top" alt="Product image" style="height: 200px; object-fit: contain;">
+                <div class="card-body">
+                    <h5 class="card-title">{{ cart.product.name }}</h5>
+                    <p class="card-text">Price: ${{ cart.product.price }}</p>
+                    <p class="card-text">Qty: <span id="quantity-{{ cart.product.id }}">{{ cart.quantity }}</span></p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <button type="button" pid="{{ cart.product.id }}" class="minus-cart btn btn-primary btn-sm mr-1">-</button>
+                            <button type="button" pid="{{ cart.product.id }}" class="plus-cart btn btn-primary btn-sm ml-1">+</button>
+                        </div>
+                        <button type="button" pid="{{ cart.product.id }}" class="remove-cart btn btn-danger btn-sm">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Checkout Button -->
+    <div class="text-right">
+        <a href="#" data-toggle="modal" data-target="#exampleModal" class="btn btn-outline-info border rounded col-lg-3 float-right">Check Out</a>
+    </div>
+</div>
+
+<!-- Checkout Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Checkout Confirmation</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="/checkout/" method="POST">
+                    {% csrf_token %}
+                    <div class="form-group mt-3">
+                        <label for="name">Name</label>
+                        <input required type="text" name="name" id="name" class="form-control" placeholder="Enter Your Name">
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="address">Shipping Address</label>
+                        <input required type="text" name="address" id="address" class="form-control" placeholder="Enter Your Shipping Address">
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="mobile">Mobile No.</label>
+                        <input required type="text" name="mobile" id="mobile" class="form-control" placeholder="Enter Your Mobile No.">
+                    </div>
+                    <input type="submit" class="btn btn-outline-info border rounded col-lg-3 float-left mt-3" value="Confirm Order">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Plus Cart Functionality -->
+<script>
+    $('.plus-cart').click(function () {
+        var id = $(this).attr("pid").toString();
+        $.ajax({
+            type: "GET",
+            url: "/plus_cart/",
+            data: {
+                prod_id: id
+            },
+            success: function (data) {
+                $('#quantity-' + id).text(data.quantity);  // Update the quantity in the DOM
+                $('#total-price').text(data.total_price);  // Update total price
+            },
+            error: function (xhr, status, error) {
+                console.error("Error:", xhr.responseText);  // Log any error response
+            }
+        });
+    });
+
+    $('.minus-cart').click(function () {
+        var id = $(this).attr("pid").toString();
+        $.ajax({
+            type: "GET",
+            url: "/minus_cart/",
+            data: {
+                prod_id: id
+            },
+            success: function (data) {
+                $('#quantity-' + id).text(data.quantity);  // Update the quantity in the DOM
+                $('#total-price').text(data.total_price);  // Update total price
+            },
+            error: function (xhr, status, error) {
+                console.error("Error:", xhr.responseText);  // Log any error response
+            }
+        });
+    });
+
+    $('.remove-cart').click(function () {
+        var id = $(this).attr("pid").toString();
+        var row = $(this).closest(".col-md-4");
+
+        $.ajax({
+            type: "GET",
+            url: "/remove_cart/",
+            data: {
+                prod_id: id
+            },
+            success: function (data) {
+                if (data.success) {
+                    row.fadeOut(function() {
+                        $(this).remove(); // Remove the product card from the DOM
+                    });
+                } else {
+                    console.error("Error removing item:", data.error);  // Log any error message from the response
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Error:", xhr.responseText);  // Log any error response
+            }
+        });
+    });
+</script>
+{% endblock %}
